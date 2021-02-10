@@ -15,7 +15,7 @@ Therefore, theta value is always 90 degrees more than that of the unit circle.
 Stable state: a state in which the pendulum degree, pendulum angular velocity, pendulum angular
 acceleration, cart acceleration, and force applied to the cart equal to 0.<br />
 In summary, I have designed the fuzzy controller so that the inverted pendulum stay at a stable state for enough
-time started from a random state that every variable except the pendulum degree is 0. (50)
+time started from a random state that every variable except the pendulum degree is 0.
 <br />
 
 <img align="right" src="inverted_pendulum.png">
