@@ -1,0 +1,142 @@
+FUNCTION_BLOCK Inverted_Pendulum
+
+    VAR_INPUT
+        theta : REAL; (*min=-180,max=180*)
+        theta_dot : REAL; (*min=-6,max=6*)
+        x_dot : REAL; (*min=-250,max=250*)
+    END_VAR
+
+    VAR_OUTPUT
+        F : REAL; (*min=-50,max=50*)
+    END_VAR
+
+    FUZZIFY theta
+        TERM paiin_chap :=  (310,0) (360,1);
+        TERM kheili_chap :=  (190,0) (270,1) (320,0);
+        TERM yekam_chap :=  (180,0) (190,1) (250,0);
+        TERM moteadel :=  (170,0) (180,1) (190,0);
+        TERM yekam_rast :=  (100,0) (170,1) (180,0);
+        TERM kheili_rast :=  (40,0) (90,1) (170,0);
+        TERM paiin_rast :=  (0,1) (50,0);
+    END_FUZZIFY
+
+    FUZZIFY theta_dot
+        TERM tond_rast := (-6,1) (-2,0);
+        TERM aram_rast := (-3,0) (-1,1) (0,0);
+        TERM sabet := (-0.5,0) (0,1) (0.5,0);
+        TERM aram_chap := (0,0) (1,1) (3,0);
+        TERM tond_chap := (2,0) (6,1);
+    END_FUZZIFY
+
+    FUZZIFY x_dot
+        TERM tond_chap := (-80,1) (-60,0);
+        TERM aram_chap := (-60,0) (-40,1) (0,0);
+        TERM sabet := (-40,0) (0,1) (40,0);
+        TERM aram_rast := (0,0) (40,1) (60,0);
+        TERM tond_rast := (60,0) (80,1);
+    END_FUZZIFY
+
+
+    DEFUZZIFY F
+        TERM kheili_tond_chap := (-80,0) (-50,1) (-30,0);
+        TERM tond_chap := (-50,0) (-30,1) (-5,0);
+        TERM aram_chap := (-30,0) (-10,1) (0,0);
+        TERM hichi := (-10,0) (0,1) (10,0);
+        TERM aram_rast := (0,0) (10,1) (30,0);
+        TERM tond_rast := (10,0) (30,1) (50,0);
+        TERM kheili_tond_rast := (30,0) (50,1) (80,0);
+        ACCU : MAX; (* AlgebraicSum *)
+        METHOD : COG;
+        DEFAULT := 0;
+    END_DEFUZZIFY
+
+    RULEBLOCK Inverted_Pendulum
+        AND : MIN; (*AlgebraicProduct*)
+        OR : MAX;
+
+        (*sharayete aadi*)
+        RULE 1 : IF theta IS yekam_chap AND theta_dot IS aram_chap
+                 THEN F IS tond_chap;
+
+        RULE 2 : IF theta IS moteadel AND theta_dot IS aram_chap
+                 THEN F IS aram_chap;
+
+        RULE 3 : IF theta IS yekam_rast AND theta_dot IS aram_chap
+                 THEN F IS hichi;
+
+        RULE 4 : IF theta IS yekam_chap AND theta_dot IS sabet
+                 THEN F IS aram_chap;
+
+        RULE 5 : IF theta IS moteadel AND theta_dot IS sabet
+                 THEN F IS hichi;
+
+        RULE 6 : IF theta IS yekam_rast AND theta_dot IS sabet
+                 THEN F IS aram_rast;
+
+        RULE 7 : IF theta IS yekam_chap AND theta_dot IS aram_rast
+                 THEN F IS hichi;
+
+        RULE 8 : IF theta IS moteadel AND theta_dot IS aram_rast
+                 THEN F IS aram_rast;
+
+        RULE 9 : IF theta IS yekam_rast AND theta_dot IS aram_rast
+                 THEN F IS tond_rast;
+
+        (* hool bede bere bala! *)
+        RULE 10 : IF theta IS paiin_chap AND theta_dot IS aram_chap
+                 THEN F IS tond_chap;
+
+        RULE 11 : IF theta IS paiin_chap AND theta_dot IS tond_chap
+                 THEN F IS tond_chap;
+
+        RULE 12 : IF theta IS paiin_rast AND theta_dot IS aram_rast
+                 THEN F IS tond_rast;
+
+        RULE 13 : IF theta IS paiin_rast AND theta_dot IS tond_rast
+                 THEN F IS tond_rast;
+
+        (* aroomesh kon! *)
+        RULE 14 : IF theta IS moteadel AND theta_dot IS tond_rast
+                 THEN F IS tond_rast;
+
+        RULE 15 : IF theta IS moteadel AND theta_dot IS tond_chap
+                 THEN F IS tond_chap;
+
+        (* vaisa yeja!
+        RULE 16 : x_dot IS tond_chap OR x_dot IS aram_chap
+                 THEN F IS aram_rast;
+
+        RULE 17 : x_dot IS tond_rast OR x_dot IS aram_rast
+                 THEN F IS aram_chap; *)
+
+        (*kheili_chap*)
+        RULE 18 : IF theta IS kheili_chap AND
+                    (theta_dot IS sabet OR
+                     theta_dot IS aram_rast OR
+                      theta_dot IS aram_chap)
+                 THEN F IS hichi;
+
+        RULE 19 : IF theta IS kheili_chap AND theta_dot IS tond_rast
+                 THEN F IS aram_rast;
+
+        RULE 20 : IF theta IS kheili_chap AND theta_dot IS tond_chap
+                 THEN F IS aram_rast;
+
+
+        (*kheili_rast*)
+        RULE 21 : IF theta IS kheili_rast AND
+                    (theta_dot IS sabet OR
+                     theta_dot IS aram_rast OR
+                      theta_dot IS aram_chap)
+                 THEN F IS hichi;
+
+        RULE 22 : IF theta IS kheili_rast AND theta_dot IS tond_rast
+                 THEN F IS aram_chap;
+
+        RULE 23 : IF theta IS kheili_rast AND theta_dot IS tond_chap
+                 THEN F IS aram_chap;
+
+
+    END_RULEBLOCK
+
+END_FUNCTION_BLOCK
